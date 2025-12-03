@@ -120,8 +120,6 @@ import_rules:
     - "functools"
     - "dataclasses"
     - "enum"
-    - "dataclasses"
-    - "enum"
     
   # Import style requirements
   style:
