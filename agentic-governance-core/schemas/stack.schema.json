@@ -1,0 +1,334 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/leonbreukelman/hyper-governance-core/schemas/stack.schema.json",
+  "title": "Technology Stack Schema",
+  "description": "JSON Schema for validating stack.yaml - the Material Law defining approved technology stack",
+  "type": "object",
+  "required": ["version", "python", "approved_libraries"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version in semver format",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "Date of last update in ISO 8601 format",
+      "format": "date"
+    },
+    "python": {
+      "type": "object",
+      "description": "Python version requirements",
+      "required": ["minimum_version"],
+      "properties": {
+        "minimum_version": {
+          "type": "string",
+          "description": "Minimum required Python version",
+          "pattern": "^[0-9]+\\.[0-9]+$"
+        },
+        "recommended_version": {
+          "type": "string",
+          "description": "Recommended Python version",
+          "pattern": "^[0-9]+\\.[0-9]+$"
+        },
+        "maximum_version": {
+          "type": "string",
+          "description": "Maximum supported Python version",
+          "pattern": "^[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "core_dependencies": {
+      "type": "array",
+      "description": "Core dependencies that are always allowed",
+      "items": {
+        "type": "object",
+        "required": ["name", "always_allowed"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the core dependency"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the dependency"
+          },
+          "always_allowed": {
+            "type": "boolean",
+            "description": "Whether this dependency is always allowed"
+          }
+        }
+      }
+    },
+    "approved_libraries": {
+      "type": "array",
+      "description": "List of approved third-party libraries",
+      "items": {
+        "type": "object",
+        "required": ["name", "purpose"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Library name (as used in pip install)"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Why this library is approved"
+          },
+          "min_version": {
+            "type": "string",
+            "description": "Minimum allowed version"
+          },
+          "max_version": {
+            "type": "string",
+            "description": "Maximum allowed version"
+          },
+          "import_patterns": {
+            "type": "array",
+            "description": "Expected import patterns for this library",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "type": "string",
+            "description": "Scope of dependency",
+            "enum": ["prod", "dev", "test"]
+          },
+          "builtin": {
+            "type": "boolean",
+            "description": "Whether this is a Python builtin module"
+          },
+          "security_notes": {
+            "type": "string",
+            "description": "Security considerations for this library"
+          }
+        }
+      }
+    },
+    "forbidden_libraries": {
+      "type": "array",
+      "description": "List of explicitly forbidden libraries",
+      "items": {
+        "type": "object",
+        "required": ["name", "reason"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Library or function name"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why this library is forbidden"
+          },
+          "alternatives": {
+            "type": "array",
+            "description": "Recommended alternatives",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "import_rules": {
+      "type": "object",
+      "description": "Rules for import statements",
+      "properties": {
+        "stdlib_allowed": {
+          "type": "array",
+          "description": "Standard library modules that are allowed",
+          "items": {
+            "type": "string"
+          }
+        },
+        "style": {
+          "type": "array",
+          "description": "Import style requirements",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "type": "string",
+                "description": "Description of the rule"
+              },
+              "example": {
+                "type": "string",
+                "description": "Example of correct usage"
+              },
+              "forbidden": {
+                "type": "string",
+                "description": "Example of forbidden usage"
+              },
+              "preferred": {
+                "type": "string",
+                "description": "Preferred import style"
+              },
+              "discouraged": {
+                "type": "string",
+                "description": "Discouraged import style"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependency_management": {
+      "type": "object",
+      "description": "Dependency management configuration",
+      "properties": {
+        "tool": {
+          "type": "string",
+          "description": "Package manager to use",
+          "enum": ["pip", "poetry", "pipenv", "conda"]
+        },
+        "requirements_file": {
+          "type": "string",
+          "description": "Production requirements file name"
+        },
+        "dev_requirements_file": {
+          "type": "string",
+          "description": "Development requirements file name"
+        },
+        "versioning_policy": {
+          "type": "array",
+          "description": "Versioning policy guidelines",
+          "items": {
+            "type": "string"
+          }
+        },
+        "update_policy": {
+          "type": "array",
+          "description": "Dependency update policy",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "description": "Platform and environment requirements",
+      "properties": {
+        "supported_os": {
+          "type": "array",
+          "description": "List of supported operating systems",
+          "items": {
+            "type": "string"
+          }
+        },
+        "container": {
+          "type": "object",
+          "description": "Container configuration",
+          "properties": {
+            "base_image": {
+              "type": "string",
+              "description": "Docker base image"
+            },
+            "package_manager": {
+              "type": "string",
+              "description": "Package manager in container"
+            }
+          }
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "description": "Security policies",
+      "properties": {
+        "scan_dependencies": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "code_analysis": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "allowed_network_calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "enforcement": {
+                "type": "string",
+                "enum": ["strict", "warning", "info"]
+              },
+              "exceptions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "description": "Validation configuration",
+      "properties": {
+        "strict_mode": {
+          "type": "boolean",
+          "description": "Whether to run in strict validation mode"
+        },
+        "fail_on_warning": {
+          "type": "boolean",
+          "description": "Whether to fail on warnings"
+        },
+        "report_format": {
+          "type": "string",
+          "description": "Format for validation reports",
+          "enum": ["human", "json", "junit", "xml"]
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Extension points for custom validators",
+      "properties": {
+        "custom_validators": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "location": {
+              "type": "string"
+            },
+            "requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

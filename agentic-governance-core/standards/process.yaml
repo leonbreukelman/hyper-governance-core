@@ -1,0 +1,388 @@
+# Process Standards - Procedural Law
+# Defines workflows, roles, and operational procedures
+
+version: "1.0.0"
+last_updated: "2025-12-03"
+
+# Development workflow
+development_workflow:
+  name: "Constitutional Development Process"
+  description: "Standard workflow for all code changes"
+  
+  stages:
+    - name: "planning"
+      order: 1
+      description: "Define requirements and design"
+      required: true
+      activities:
+        - "Create or update issue with clear requirements"
+        - "Review relevant constitutional artifacts"
+        - "Design solution aligned with architecture.md"
+        - "Identify affected validators and schemas"
+      exit_criteria:
+        - "Requirements documented"
+        - "Design approved by reviewer"
+        
+    - name: "implementation"
+      order: 2
+      description: "Write code following standards"
+      required: true
+      activities:
+        - "Create feature branch from main"
+        - "Implement changes per architecture.md"
+        - "Use only approved libraries from stack.yaml"
+        - "Write tests alongside code"
+        - "Update documentation"
+      exit_criteria:
+        - "Code complete"
+        - "All tests passing"
+        - "Documentation updated"
+        
+    - name: "validation"
+      order: 3
+      description: "Automated and manual validation"
+      required: true
+      activities:
+        - "Run ast_enforcer.py on changes"
+        - "Run stack_police.py on changes"
+        - "Execute full test suite"
+        - "Run linters (ruff, mypy)"
+        - "Check code coverage (minimum 80%)"
+      exit_criteria:
+        - "All validators pass"
+        - "All tests pass"
+        - "No linting errors"
+        - "Coverage threshold met"
+        
+    - name: "review"
+      order: 4
+      description: "Peer review and approval"
+      required: true
+      activities:
+        - "Submit pull request with description"
+        - "Address reviewer feedback"
+        - "Ensure CI/CD pipeline passes"
+        - "Obtain required approvals"
+      exit_criteria:
+        - "At least one approval"
+        - "All comments resolved"
+        - "CI/CD green"
+        
+    - name: "integration"
+      order: 5
+      description: "Merge and deploy"
+      required: true
+      activities:
+        - "Merge to main branch"
+        - "Tag release if applicable"
+        - "Deploy to staging"
+        - "Verify in staging environment"
+        - "Deploy to production if approved"
+      exit_criteria:
+        - "Successfully merged"
+        - "Staging verification passed"
+
+# Roles and responsibilities
+roles:
+  - name: "contributor"
+    description: "Anyone who submits code or documentation changes"
+    responsibilities:
+      - "Follow all constitutional artifacts"
+      - "Write tests for changes"
+      - "Update documentation"
+      - "Respond to review feedback"
+    permissions:
+      - "Create branches"
+      - "Open pull requests"
+      - "Comment on issues and PRs"
+      
+  - name: "reviewer"
+    description: "Team member who reviews code changes"
+    responsibilities:
+      - "Ensure compliance with architecture.md"
+      - "Verify stack.yaml compliance"
+      - "Check test coverage and quality"
+      - "Validate documentation updates"
+      - "Provide constructive feedback"
+    permissions:
+      - "All contributor permissions"
+      - "Approve pull requests"
+      - "Request changes"
+      
+  - name: "maintainer"
+    description: "Responsible for repository maintenance"
+    responsibilities:
+      - "Merge approved pull requests"
+      - "Manage releases"
+      - "Update constitutional artifacts"
+      - "Resolve conflicts"
+      - "Monitor CI/CD"
+    permissions:
+      - "All reviewer permissions"
+      - "Merge pull requests"
+      - "Manage releases"
+      - "Update protected branches"
+      
+  - name: "governance_committee"
+    description: "Group that evolves constitutional artifacts"
+    responsibilities:
+      - "Review proposals for constitutional changes"
+      - "Approve updates to standards/"
+      - "Resolve disputes about interpretation"
+      - "Define and update policies"
+    permissions:
+      - "All maintainer permissions"
+      - "Update constitutional artifacts"
+      - "Define new policies"
+
+# Code review process
+code_review:
+  requirements:
+    min_approvals: 1
+    required_reviewers: []  # Can specify specific reviewers
+    dismiss_stale_reviews: true
+    require_code_owner_review: false
+    
+  review_checklist:
+    architecture:
+      - "Follows layered architecture pattern"
+      - "Respects module boundaries"
+      - "No forbidden dependencies"
+      - "Proper separation of concerns"
+      
+    code_quality:
+      - "Clear and descriptive naming"
+      - "Appropriate use of comments"
+      - "No code duplication"
+      - "Proper error handling"
+      - "Security best practices followed"
+      
+    testing:
+      - "Unit tests for new functionality"
+      - "Integration tests where appropriate"
+      - "Edge cases covered"
+      - "Tests are deterministic"
+      - "Test coverage meets threshold"
+      
+    documentation:
+      - "README updated if needed"
+      - "Docstrings for public APIs"
+      - "Complex logic explained"
+      - "Examples provided for new features"
+      
+    stack_compliance:
+      - "Only approved libraries used"
+      - "No forbidden libraries"
+      - "Import style follows rules"
+      - "Dependencies properly declared"
+      
+  automation:
+    enabled: true
+    tools:
+      - name: "GitHub Actions"
+        checks:
+          - "Run test suite"
+          - "Run validators"
+          - "Check code coverage"
+          - "Run linters"
+          
+      - name: "CodeQL"
+        checks:
+          - "Security scanning"
+          - "Code quality analysis"
+
+# Testing standards
+testing:
+  frameworks:
+    - name: "pytest"
+      purpose: "Primary testing framework"
+      
+  test_types:
+    - name: "unit"
+      description: "Test individual components in isolation"
+      coverage_target: 90
+      location: "tests/unit/"
+      
+    - name: "integration"
+      description: "Test component interactions"
+      coverage_target: 80
+      location: "tests/integration/"
+      
+    - name: "validation"
+      description: "Test validator functionality"
+      coverage_target: 95
+      location: "tests/validators/"
+      
+  requirements:
+    - "All tests must pass before merging"
+    - "New code must have tests"
+    - "Tests must be deterministic"
+    - "Tests must be isolated"
+    - "Use fixtures for test data"
+    
+  coverage:
+    minimum_threshold: 80
+    target_threshold: 90
+    fail_under: 80
+    report_format: "html"
+
+# Release process
+release_process:
+  versioning:
+    scheme: "semver"  # Major.Minor.Patch
+    format: "v{major}.{minor}.{patch}"
+    
+  types:
+    - name: "major"
+      when: "Breaking changes to APIs or architecture"
+      branch: "main"
+      requires_approval: "governance_committee"
+      
+    - name: "minor"
+      when: "New features, backward compatible"
+      branch: "main"
+      requires_approval: "maintainer"
+      
+    - name: "patch"
+      when: "Bug fixes, backward compatible"
+      branch: "main"
+      requires_approval: "maintainer"
+      
+  steps:
+    - "Update version in all relevant files"
+    - "Update CHANGELOG.md"
+    - "Create release branch"
+    - "Run full validation suite"
+    - "Create git tag"
+    - "Build and publish artifacts"
+    - "Create GitHub release"
+    - "Update documentation"
+    
+  artifacts:
+    - "Python package (wheel)"
+    - "Documentation site"
+    - "Release notes"
+
+# Issue management
+issue_management:
+  labels:
+    - name: "bug"
+      color: "d73a4a"
+      description: "Something isn't working"
+      
+    - name: "enhancement"
+      color: "a2eeef"
+      description: "New feature or request"
+      
+    - name: "documentation"
+      color: "0075ca"
+      description: "Improvements or additions to documentation"
+      
+    - name: "constitutional"
+      color: "d4c5f9"
+      description: "Changes to constitutional artifacts"
+      
+    - name: "validator"
+      color: "fbca04"
+      description: "Related to validation logic"
+      
+    - name: "security"
+      color: "b60205"
+      description: "Security vulnerability or concern"
+      
+  templates:
+    - name: "bug_report"
+      title: "[BUG] "
+      required_fields:
+        - "Description"
+        - "Steps to reproduce"
+        - "Expected behavior"
+        - "Actual behavior"
+        - "Environment"
+        
+    - name: "feature_request"
+      title: "[FEATURE] "
+      required_fields:
+        - "Description"
+        - "Use case"
+        - "Proposed solution"
+        - "Alternatives considered"
+        
+    - name: "constitutional_change"
+      title: "[CONSTITUTIONAL] "
+      required_fields:
+        - "Artifact to change"
+        - "Proposed change"
+        - "Rationale"
+        - "Impact analysis"
+
+# Communication standards
+communication:
+  channels:
+    - name: "GitHub Issues"
+      purpose: "Bug reports, feature requests"
+      
+    - name: "Pull Requests"
+      purpose: "Code review, discussion"
+      
+    - name: "Discussions"
+      purpose: "General questions, proposals"
+      
+  guidelines:
+    - "Be respectful and constructive"
+    - "Provide context and examples"
+    - "Reference relevant issues and PRs"
+    - "Use clear, concise language"
+    - "Tag appropriate stakeholders"
+
+# Continuous Integration/Deployment
+ci_cd:
+  platform: "GitHub Actions"
+  
+  on_pull_request:
+    - "Run test suite"
+    - "Run validators (ast_enforcer, stack_police)"
+    - "Check code coverage"
+    - "Run linters (ruff, mypy)"
+    - "Build documentation"
+    - "Security scan"
+    
+  on_main_push:
+    - "All PR checks"
+    - "Deploy to staging"
+    - "Run integration tests"
+    - "Generate coverage report"
+    
+  on_release:
+    - "All main checks"
+    - "Build package"
+    - "Publish to PyPI"
+    - "Update documentation site"
+    - "Create GitHub release"
+    
+  required_checks:
+    - "tests"
+    - "validators"
+    - "linting"
+    - "coverage"
+
+# Governance evolution
+governance_evolution:
+  process:
+    - "Proposal submitted as PR to standards/"
+    - "Discussion period (minimum 7 days)"
+    - "Review by governance committee"
+    - "Vote by committee (majority required)"
+    - "Update version number"
+    - "Merge and announce"
+    
+  versioning:
+    major: "Breaking changes to structure or process"
+    minor: "Additions or enhancements"
+    patch: "Clarifications or corrections"
+    
+  notification:
+    - "Update CHANGELOG.md"
+    - "Create GitHub release"
+    - "Notify all contributors"
+    - "Update documentation"
