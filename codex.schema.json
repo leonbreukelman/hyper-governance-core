@@ -1,0 +1,211 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/leonbreukelman/hyper-governance-core/codex.schema.json",
+    "title": "CODEX Governance Fragment v1.2",
+    "description": "Schema for validating governance fragments",
+    "type": "object",
+    "required": [
+        "kind",
+        "metadata",
+        "rules"
+    ],
+    "properties": {
+        "kind": {
+            "const": "GovernanceFragment",
+            "description": "Fragment type identifier"
+        },
+        "metadata": {
+            "type": "object",
+            "required": [
+                "name",
+                "version",
+                "domain"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]+$",
+                    "description": "Fragment name (lowercase with hyphens)"
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "description": "Semantic version"
+                },
+                "domain": {
+                    "enum": [
+                        "architecture",
+                        "stack",
+                        "process",
+                        "security"
+                    ],
+                    "description": "Governance domain"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Human-readable description"
+                },
+                "deprecated": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this fragment is deprecated"
+                }
+            }
+        },
+        "rules": {
+            "type": "object",
+            "description": "Governance rules (material and structural)",
+            "properties": {
+                "material": {
+                    "type": "object",
+                    "description": "Machine-enforceable configuration",
+                    "properties": {
+                        "stack": {
+                            "type": "object",
+                            "description": "Technology stack rules",
+                            "properties": {
+                                "python_version": {
+                                    "type": "string",
+                                    "description": "Required Python version"
+                                },
+                                "base_image": {
+                                    "type": "string",
+                                    "description": "Docker base image"
+                                },
+                                "allowed_libraries": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable",
+                                    "description": "Approved third-party libraries"
+                                },
+                                "banned_libraries": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable",
+                                    "description": "Forbidden libraries"
+                                },
+                                "required_tools": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable",
+                                    "description": "Required development tools"
+                                },
+                                "terraform_version": {
+                                    "type": "string"
+                                },
+                                "node_version": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": true
+                        },
+                        "process": {
+                            "type": "object",
+                            "description": "Development process rules",
+                            "properties": {
+                                "branching_model": {
+                                    "type": "string",
+                                    "description": "Git branching strategy"
+                                },
+                                "minimum_reviewers": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "description": "Minimum required PR reviewers"
+                                },
+                                "required_status_checks": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable",
+                                    "description": "Required CI checks"
+                                },
+                                "release_cadence": {
+                                    "type": "string",
+                                    "description": "Release schedule"
+                                }
+                            }
+                        },
+                        "security": {
+                            "type": "object",
+                            "description": "Security rules",
+                            "properties": {
+                                "scan_dependencies": {
+                                    "type": "boolean",
+                                    "description": "Enable dependency scanning"
+                                },
+                                "require_signed_commits": {
+                                    "type": "boolean",
+                                    "description": "Require GPG-signed commits"
+                                },
+                                "allowed_network_calls": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable"
+                                },
+                                "forbidden_patterns": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "x-merge-strategy": "set-union-stable",
+                                    "description": "Forbidden code patterns"
+                                }
+                            }
+                        }
+                    }
+                },
+                "structural": {
+                    "type": "object",
+                    "description": "Human-readable content for living documentation",
+                    "properties": {
+                        "architecture_layer_row": {
+                            "type": "string",
+                            "description": "Architecture layer table content"
+                        },
+                        "architecture_diagram": {
+                            "type": "string",
+                            "description": "ASCII or Mermaid diagram"
+                        },
+                        "architecture_decisions": {
+                            "type": "string",
+                            "description": "Architecture decision records"
+                        },
+                        "process_flowchart": {
+                            "type": "string",
+                            "description": "Process flowchart"
+                        },
+                        "process_checklist_table": {
+                            "type": "string",
+                            "description": "Process checklist table"
+                        },
+                        "security_controls_table": {
+                            "type": "string",
+                            "description": "Security controls table"
+                        },
+                        "security_crypto_policy": {
+                            "type": "string",
+                            "description": "Cryptography policy"
+                        },
+                        "readme_badges": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "README badges"
+                        }
+                    },
+                    "additionalProperties": true
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+version: "1.0"
+fragments:
+  - base@1.0.0
+  - stack-core@1.0.0
+  - process-core@1.0.0
+  - security-core@1.0.0

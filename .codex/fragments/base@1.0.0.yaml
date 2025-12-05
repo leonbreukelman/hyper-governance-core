@@ -1,0 +1,14 @@
+kind: GovernanceFragment
+metadata:
+  name: base
+  version: 1.0.0
+  domain: stack
+  description: Base governance fragment with minimal defaults
+rules:
+  material:
+    stack:
+      python_version: "3.11"
+      allowed_libraries: []
+      banned_libraries: []
+      required_tools: []
+  structural: {}
