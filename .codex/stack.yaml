@@ -1,0 +1,20 @@
+python_version: '3.11'
+allowed_libraries:
+- pyyaml
+- jsonschema
+- click
+- rich
+- pytest
+- pytest-cov
+- ruff
+- mypy
+banned_libraries:
+- pickle
+- telnetlib
+- eval
+- exec
+- os.system
+required_tools:
+- ruff
+- mypy
+- pytest
