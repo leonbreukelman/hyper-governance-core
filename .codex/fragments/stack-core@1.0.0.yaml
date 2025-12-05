@@ -1,0 +1,26 @@
+kind: GovernanceFragment
+metadata:
+  name: stack-core
+  version: 1.0.0
+  domain: stack
+  description: Core technology stack - migrated from legacy stack.yaml
+rules:
+  material:
+    stack:
+      python_version: "3.11"
+      allowed_libraries:
+        - pyyaml
+        - jsonschema
+        - click
+        - rich
+        - pytest
+        - pytest-cov
+        - ruff
+        - mypy
+      banned_libraries:
+        - pickle
+        - telnetlib
+      required_tools:
+        - ruff
+        - mypy
+        - pytest
