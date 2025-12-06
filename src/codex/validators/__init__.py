@@ -5,7 +5,6 @@ Integrated validation suite for governance enforcement.
 """
 
 from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass

@@ -1,31 +1,31 @@
 {
   "schema_version": "1.0",
-  "catalog_commit": "4797bf4bd64b8746586d6c005d90e3b73a256539",
-  "weave_timestamp": "2025-12-05T23:19:48.418808+00:00",
+  "catalog_commit": "cede930de69893facb6de1c7ee5a05c11bdc495b",
+  "weave_timestamp": "2025-12-06T00:47:20.612166+00:00",
   "manifest_hash": "sha256:placeholder",
   "fragments": [
     {
       "name": "base",
       "version": "1.0.0",
-      "path": "/home/leonb/workspaces/hyper-governance-core/.codex/fragments/base@1.0.0.yaml",
+      "path": ".codex/fragments/base@1.0.0.yaml",
       "sha256": "96c5e1fb57257c758c2020b6dc15616a6d61fe747e007f7a512f485a67334305"
     },
     {
       "name": "stack-core",
       "version": "1.0.0",
-      "path": "/home/leonb/workspaces/hyper-governance-core/.codex/fragments/stack-core@1.0.0.yaml",
+      "path": ".codex/fragments/stack-core@1.0.0.yaml",
       "sha256": "54eda6e50cf7c700417e3409dc33979fceac818543f0972ad205196f04c6946c"
     },
     {
       "name": "process-core",
       "version": "1.0.0",
-      "path": "/home/leonb/workspaces/hyper-governance-core/.codex/fragments/process-core@1.0.0.yaml",
+      "path": ".codex/fragments/process-core@1.0.0.yaml",
       "sha256": "617335b615969df9e6fb2b2458c6a2ad8d024d1bd7d96085e9a0026d120186ce"
     },
     {
       "name": "security-core",
       "version": "1.0.0",
-      "path": "/home/leonb/workspaces/hyper-governance-core/.codex/fragments/security-core@1.0.0.yaml",
+      "path": ".codex/fragments/security-core@1.0.0.yaml",
       "sha256": "5d50beb571a9c58fe5b563bdf36f39779c97ef30ddcad00183ab82c04ea2c313"
     }
   ]

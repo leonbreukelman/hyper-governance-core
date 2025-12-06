@@ -82,8 +82,9 @@ def generate_lock_file(
 ) -> dict[str, Any]:
     """Generate lock file data."""
     catalog = discover_fragments(verbose=verbose)
+    cwd = Path.cwd()
 
-    lock_data = {
+    lock_data: dict[str, Any] = {
         "schema_version": "1.0",
         "catalog_commit": get_git_commit(),
         "weave_timestamp": datetime.now(UTC).isoformat(),
@@ -100,11 +101,16 @@ def generate_lock_file(
         if name in catalog:
             for cat_frag in catalog[name]:
                 if cat_frag.version == version:
+                    # Use relative path for portability
+                    try:
+                        rel_path = cat_frag.path.relative_to(cwd)
+                    except ValueError:
+                        rel_path = cat_frag.path
                     lock_data["fragments"].append(
                         {
                             "name": name,
                             "version": version,
-                            "path": str(cat_frag.path),
+                            "path": str(rel_path),
                             "sha256": cat_frag.sha256,
                         }
                     )
@@ -169,7 +175,7 @@ def weave_artifacts(
     structural = rules.get("structural", {})
 
     # Define outputs
-    outputs = {
+    outputs: dict[str, str | None] = {
         "architecture.md": None,
         "stack.yaml": None,
         "process.md": None,

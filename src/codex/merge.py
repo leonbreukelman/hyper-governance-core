@@ -123,12 +123,11 @@ def apply_security_veto(merged: dict[str, Any], verbose: bool = False) -> dict[s
     """
     material = merged.get("rules", {}).get("material", {})
 
-    # Get banned items
+    # Get banned items from stack
     stack = material.get("stack", {})
-    security = material.get("security", {})
 
     banned_libraries = set(stack.get("banned_libraries", []))
-    forbidden_patterns = set(security.get("forbidden_patterns", []))
+    # Note: security.forbidden_patterns handled by AST enforcer, not veto pass
 
     # Remove banned from allowed
     allowed_libraries = stack.get("allowed_libraries", [])
@@ -136,7 +135,9 @@ def apply_security_veto(merged: dict[str, Any], verbose: bool = False) -> dict[s
         vetoed = [lib for lib in allowed_libraries if lib in banned_libraries]
         if vetoed and verbose:
             print(f"Vetoed libraries: {vetoed}")
-        stack["allowed_libraries"] = [lib for lib in allowed_libraries if lib not in banned_libraries]
+        stack["allowed_libraries"] = [
+            lib for lib in allowed_libraries if lib not in banned_libraries
+        ]
 
     return merged
 
