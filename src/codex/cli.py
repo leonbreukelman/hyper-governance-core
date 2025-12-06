@@ -30,15 +30,22 @@ def main(ctx: click.Context, verbose: bool) -> None:
 
 
 @main.command()
+@click.option(
+    "--skip-agents",
+    is_flag=True,
+    help="Skip creating AGENTS.md and .github/copilot-instructions.md",
+)
 @click.pass_context
-def init(ctx: click.Context) -> None:
+def init(ctx: click.Context, skip_agents: bool) -> None:
     """Initialize codex.manifest.yaml and .codex/ structure."""
     from codex.manifest import initialize_manifest
 
     verbose = ctx.obj.get("verbose", False)
     try:
-        initialize_manifest(verbose=verbose)
+        created = initialize_manifest(verbose=verbose, skip_agents=skip_agents)
         console.print("[green]✓[/green] Initialized CODEX structure")
+        for path in created:
+            console.print(f"  → {path}")
     except Exception as e:
         console.print(f"[red]✗[/red] Failed to initialize: {e}")
         raise SystemExit(1)
@@ -104,14 +111,21 @@ def list_fragments(ctx: click.Context, show_all: bool, installed: bool) -> None:
 @click.option("--locked", is_flag=True, help="Use lock file for reproducible build")
 @click.option("--dry-run", is_flag=True, help="Show what would be generated")
 @click.option("--check", is_flag=True, help="Verify output matches lock file")
+@click.option("--skip-agents", is_flag=True, help="Skip updating AGENTS.md")
 @click.pass_context
-def weave(ctx: click.Context, locked: bool, dry_run: bool, check: bool) -> None:
+def weave(ctx: click.Context, locked: bool, dry_run: bool, check: bool, skip_agents: bool) -> None:
     """Generate all .codex/* artifacts."""
     from codex.render import weave_artifacts
 
     verbose = ctx.obj.get("verbose", False)
     try:
-        result = weave_artifacts(locked=locked, dry_run=dry_run, check=check, verbose=verbose)
+        result = weave_artifacts(
+            locked=locked,
+            dry_run=dry_run,
+            check=check,
+            skip_agents=skip_agents,
+            verbose=verbose,
+        )
         if dry_run:
             console.print("[blue]Dry run:[/blue] No files were written")
             for artifact in result.get("would_generate", []):
