@@ -1,0 +1,15 @@
+kind: GovernanceFragment
+metadata:
+  name: architecture-core
+  version: 1.0.0
+  domain: architecture
+  description: Core architectural standards for 4-layer clean architecture
+rules:
+  structural:
+    architecture_layer_row: |
+      | Presentation | CLI, API | Platform Team |
+      | Application | Use Cases, Orchestration | Platform Team |
+      | Domain | Business Logic | Domain Team |
+      | Infrastructure | External Services, I/O | Platform Team |
+    architecture_decisions: |
+      *No architectural decisions recorded yet.*
