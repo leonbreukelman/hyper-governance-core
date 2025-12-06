@@ -1,6 +1,5 @@
 """Tests for render engine."""
 
-import pytest
 
 from codex.render import inject_content, render_stack_yaml
 

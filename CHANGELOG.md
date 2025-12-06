@@ -11,12 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Ruff lint errors resolved (unused variables and imports)
 - MyPy type checking passes (added type stubs, fixed annotations)
 - Lock file uses relative paths for cross-machine portability
+- **Bundled fragments with package** – `codex list` now shows available fragments after `uv tool install` without needing to clone repo
 
 ### Added
 
 - CONTRIBUTING.md guide
 - SECURITY.md policy
 - This CHANGELOG.md
+- Integration tests for bundled fragment discovery
 
 ## [1.2.0] - 2025-12-05
 

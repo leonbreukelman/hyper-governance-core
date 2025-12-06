@@ -1,6 +1,5 @@
 """Tests for schema validation."""
 
-import pytest
 
 from codex.schema import get_merge_strategy, is_deprecated, validate_fragment
 
