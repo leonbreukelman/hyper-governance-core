@@ -8,14 +8,14 @@ and generates all four domain artifacts in a single pass.
 import json
 import re
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from codex.catalog import discover_fragments, resolve_fragment
-from codex.manifest import CODEX_DIR, STANDARDS_DIR, get_ordered_fragments, load_manifest
+from codex.manifest import CODEX_DIR, STANDARDS_DIR, get_ordered_fragments
 from codex.merge import merge_fragments
 from codex.schema import load_schema
 
@@ -86,7 +86,7 @@ def generate_lock_file(
     lock_data = {
         "schema_version": "1.0",
         "catalog_commit": get_git_commit(),
-        "weave_timestamp": datetime.now(timezone.utc).isoformat(),
+        "weave_timestamp": datetime.now(UTC).isoformat(),
         "manifest_hash": manifest_hash,
         "fragments": [],
     }
@@ -117,6 +117,7 @@ def weave_artifacts(
     locked: bool = False,
     dry_run: bool = False,
     check: bool = False,
+    skip_agents: bool = False,
     verbose: bool = False,
 ) -> dict[str, Any]:
     """
@@ -126,6 +127,7 @@ def weave_artifacts(
         locked: Use lock file for reproducible build
         dry_run: Don't write files, just show what would happen
         check: Verify output matches lock file
+        skip_agents: Skip updating AGENTS.md
         verbose: Print detailed output
 
     Returns:
@@ -212,7 +214,10 @@ def weave_artifacts(
         )
 
     if dry_run:
-        return {"would_generate": [k for k, v in outputs.items() if v is not None]}
+        would_generate = [k for k, v in outputs.items() if v is not None]
+        if not skip_agents:
+            would_generate.append("AGENTS.md")
+        return {"would_generate": would_generate}
 
     # Write outputs
     generated = []
@@ -234,7 +239,138 @@ def weave_artifacts(
     commit_path.write_text(get_git_commit())
     generated.append(str(commit_path))
 
+    # Update AGENTS.md with current governance state
+    if not skip_agents:
+        agents_path = update_agents_md(material, structural, verbose=verbose)
+        if agents_path:
+            generated.append(agents_path)
+
     return {"generated": generated}
+
+
+def generate_stack_summary(material: dict[str, Any]) -> str:
+    """Generate a markdown summary of stack requirements."""
+    stack = material.get("stack", {})
+    if not stack:
+        return "*No stack requirements defined.*"
+
+    lines = []
+
+    if "python_version" in stack:
+        lines.append(f"- **Python Version:** {stack['python_version']}")
+
+    if "allowed_libraries" in stack:
+        libs = ", ".join(f"`{lib}`" for lib in stack["allowed_libraries"][:10])
+        if len(stack["allowed_libraries"]) > 10:
+            libs += f" (+{len(stack['allowed_libraries']) - 10} more)"
+        lines.append(f"- **Allowed Libraries:** {libs}")
+
+    if "banned_libraries" in stack:
+        banned = ", ".join(f"`{lib}`" for lib in stack["banned_libraries"])
+        lines.append(f"- **Banned Libraries:** {banned}")
+
+    if "required_tools" in stack:
+        tools = ", ".join(f"`{tool}`" for tool in stack["required_tools"])
+        lines.append(f"- **Required Tools:** {tools}")
+
+    return "\n".join(lines) if lines else "*No stack requirements defined.*"
+
+
+def generate_security_summary(material: dict[str, Any]) -> str:
+    """Generate a markdown summary of security rules."""
+    security = material.get("security", {})
+    stack = material.get("stack", {})
+    if not security and not stack.get("banned_libraries"):
+        return "*No security rules defined.*"
+
+    lines = []
+
+    if stack.get("banned_libraries"):
+        banned = ", ".join(f"`{lib}`" for lib in stack["banned_libraries"])
+        lines.append(f"- **Banned Libraries:** {banned}")
+
+    if security.get("forbidden_patterns"):
+        patterns = ", ".join(f"`{p}`" for p in security["forbidden_patterns"])
+        lines.append(f"- **Forbidden Patterns:** {patterns}")
+
+    if security.get("scan_dependencies"):
+        lines.append("- **Dependency Scanning:** Required")
+
+    if security.get("require_signed_commits"):
+        lines.append("- **Signed Commits:** Required")
+
+    return "\n".join(lines) if lines else "*No security rules defined.*"
+
+
+def generate_process_summary(material: dict[str, Any]) -> str:
+    """Generate a markdown summary of process rules."""
+    process = material.get("process", {})
+    if not process:
+        return "*No process rules defined.*"
+
+    lines = []
+
+    if "branching_model" in process:
+        lines.append(f"- **Branching Model:** {process['branching_model']}")
+
+    if "minimum_reviewers" in process:
+        lines.append(f"- **Minimum Reviewers:** {process['minimum_reviewers']}")
+
+    if "required_status_checks" in process:
+        checks = ", ".join(f"`{c}`" for c in process["required_status_checks"])
+        lines.append(f"- **Required Checks:** {checks}")
+
+    if "release_cadence" in process:
+        lines.append(f"- **Release Cadence:** {process['release_cadence']}")
+
+    return "\n".join(lines) if lines else "*No process rules defined.*"
+
+
+def update_agents_md(
+    material: dict[str, Any], structural: dict[str, Any], verbose: bool = False
+) -> str | None:
+    """
+    Update AGENTS.md with current governance state.
+
+    Uses anchor-based injection to update dynamic sections while
+    preserving user customizations outside anchors.
+
+    Returns:
+        Path to updated file, or None if file doesn't exist
+    """
+    cwd = Path.cwd()
+    agents_path = cwd / "AGENTS.md"
+
+    if not agents_path.exists():
+        if verbose:
+            print("AGENTS.md not found, skipping update")
+        return None
+
+    content = agents_path.read_text()
+
+    # Check if it has our anchors
+    if "<!-- BEGIN_STACK_SUMMARY -->" not in content:
+        if verbose:
+            print("AGENTS.md missing anchors, skipping update")
+        return None
+
+    # Generate summaries from material
+    stack_summary = generate_stack_summary(material)
+    security_summary = generate_security_summary(material)
+    process_summary = generate_process_summary(material)
+
+    # Inject content
+    content = inject_content(content, "STACK_SUMMARY", stack_summary)
+    content = inject_content(content, "SECURITY_RULES", security_summary)
+    content = inject_content(content, "PROCESS_RULES", process_summary)
+
+    # Write updated content
+    agents_path.write_text(content)
+
+    if verbose:
+        print("Updated AGENTS.md with current governance state")
+
+    return str(agents_path)
 
 
 def show_diff(verbose: bool = False) -> list[str]:
