@@ -5,6 +5,15 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
+## Prerequisites
+
+- **Python 3.11+**
+- **[UV](https://github.com/astral-sh/uv)** package manager – Install with:
+
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+
 ## Overview
 
 CODEX Weaver merges governance fragments semantically and renders them into living documentation. Define your organization's standards once, compose them declaratively, and enforce them automatically.

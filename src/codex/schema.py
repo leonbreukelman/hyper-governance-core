@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft7Validator, ValidationError
+from jsonschema.protocols import Validator
 from jsonschema.validators import validator_for
 
 SCHEMA_FILE = "codex.schema.json"
@@ -34,7 +34,7 @@ def load_schema(verbose: bool = False) -> dict[str, Any]:
     return schema
 
 
-def create_validator(schema: dict[str, Any]) -> Draft7Validator:
+def create_validator(schema: dict[str, Any]) -> Validator:
     """Create a JSON Schema validator instance."""
     validator_cls = validator_for(schema)
     validator_cls.check_schema(schema)
