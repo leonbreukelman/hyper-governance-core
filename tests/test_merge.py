@@ -1,11 +1,9 @@
 """Tests for merge engine."""
 
-import pytest
 
 from codex.merge import (
     apply_security_veto,
     is_security_fragment,
-    merge_fragments,
     merge_with_strategy,
     reorder_for_security,
     set_union_stable,

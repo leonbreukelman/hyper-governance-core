@@ -1,0 +1,30 @@
+kind: GovernanceFragment
+metadata:
+  name: security-core
+  version: 1.0.0
+  domain: security
+  description: Core security policies
+rules:
+  material:
+    stack:
+      banned_libraries:
+        - pickle
+        - eval
+        - exec
+        - os.system
+        - telnetlib
+    security:
+      scan_dependencies: true
+      require_signed_commits: false
+      forbidden_patterns:
+        - "eval("
+        - "exec("
+        - "os.system("
+        - "yaml.load("
+  structural:
+    security_controls_table: |
+      | Control | Enforcement | Notes |
+      |---------|-------------|-------|
+      | No arbitrary code execution | Strict | Banned: pickle, eval, exec |
+      | Safe YAML parsing | Strict | Use safe_load() only |
+      | Dependency scanning | Required | Run on every PR |

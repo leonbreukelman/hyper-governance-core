@@ -1,0 +1,24 @@
+kind: GovernanceFragment
+metadata:
+  name: process-core
+  version: 1.0.0
+  domain: process
+  description: Core development process - migrated from legacy process.yaml
+rules:
+  material:
+    process:
+      branching_model: trunk-based
+      minimum_reviewers: 1
+      required_status_checks:
+        - tests
+        - validators
+        - linting
+        - coverage
+  structural:
+    process_checklist_table: |
+      | Phase | Mandatory Artifacts | Owner |
+      |-------|---------------------|-------|
+      | Planning | Requirements, Design | Contributor |
+      | Implementation | Code, Tests, Docs | Contributor |
+      | Validation | All checks passing | CI |
+      | Review | Approval | Reviewer |
