@@ -148,15 +148,14 @@ def weave(ctx: click.Context, locked: bool, dry_run: bool, check: bool, skip_age
 @main.command()
 @click.option("--ast", is_flag=True, help="Run AST enforcer only")
 @click.option("--stack", is_flag=True, help="Run stack police only")
-@click.option("--fix", is_flag=True, help="Auto-fix issues where possible")
 @click.pass_context
-def validate(ctx: click.Context, ast: bool, stack: bool, fix: bool) -> None:
-    """Run all validators on current codebase."""
+def validate(ctx: click.Context, ast: bool, stack: bool) -> None:
+    """Run all validators on current codebase (no auto-fix)."""
     from codex.validators import run_validators
 
     verbose = ctx.obj.get("verbose", False)
     try:
-        result = run_validators(ast_only=ast, stack_only=stack, fix=fix, verbose=verbose)
+        result = run_validators(ast_only=ast, stack_only=stack, verbose=verbose)
         if result.passed:
             console.print("[green]✓[/green] All validations passed")
         else:

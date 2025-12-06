@@ -5,6 +5,7 @@ The manifest is the user's declaration of which governance fragments
 should be applied in what order.
 """
 
+from importlib import resources
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,13 @@ AGENTS_TEMPLATE_FILE = ".codex/standards/agents.md"
 
 DEFAULT_MANIFEST = {
     "version": "1.0",
-    "fragments": [],
+    "fragments": [
+        "base@1.0.0",
+        "architecture-core@1.0.0",
+        "stack-core@1.0.0",
+        "process-core@1.0.0",
+        "security-core@1.0.0",
+    ],
 }
 
 COPILOT_INSTRUCTIONS_TEMPLATE = """# GitHub Copilot Instructions
@@ -228,12 +235,97 @@ def initialize_manifest(verbose: bool = False, skip_agents: bool = False) -> lis
         if verbose:
             print(f"{MANIFEST_FILE} already exists")
 
+    # Materialize bundled standards into .codex/standards if missing
+    created.extend(_materialize_standards(cwd, verbose=verbose))
+
+    # Materialize bundled fragments into .codex/fragments if missing
+    created.extend(_materialize_fragments(cwd, verbose=verbose))
+
     # Create agent instruction files
     agent_files = initialize_agent_instructions(verbose=verbose, skip_agents=skip_agents)
     created.extend(agent_files)
 
     if verbose:
         print("CODEX structure initialized")
+
+    return created
+
+
+def _materialize_standards(cwd: Path, verbose: bool = False) -> list[str]:
+    """Ensure .codex/standards contains the bundled base templates.
+
+    Copies packaged standards into the local .codex/standards directory
+    if they do not already exist. Existing files are left untouched to
+    allow local customization.
+    """
+
+    created: list[str] = []
+    standards_dir = cwd / STANDARDS_DIR
+
+    # Expected standard templates shipped with the package
+    standard_files = ["architecture.md", "process.md", "security.md", "agents.md"]
+
+    for name in standard_files:
+        target_path = standards_dir / name
+        if target_path.exists():
+            if verbose:
+                print(f"Standard template {target_path} already exists")
+            continue
+
+        try:
+            with resources.files("codex.data.standards").joinpath(name).open("r", encoding="utf-8") as src:
+                content = src.read()
+        except FileNotFoundError:
+            if verbose:
+                print(f"Packaged standard template not found: {name}")
+            continue
+
+        target_path.write_text(content)
+        created.append(str(target_path))
+        if verbose:
+            print(f"Created standard template {target_path}")
+
+    return created
+
+
+def _materialize_fragments(cwd: Path, verbose: bool = False) -> list[str]:
+    """Ensure .codex/fragments contains the bundled core fragments.
+
+    Copies packaged fragment YAML files into the local .codex/fragments
+    directory if they do not already exist. Existing files are preserved
+    to allow local overrides.
+    """
+
+    created: list[str] = []
+    fragments_dir = cwd / FRAGMENTS_DIR
+
+    fragment_files = [
+        "base@1.0.0.yaml",
+        "architecture-core@1.0.0.yaml",
+        "stack-core@1.0.0.yaml",
+        "process-core@1.0.0.yaml",
+        "security-core@1.0.0.yaml",
+    ]
+
+    for name in fragment_files:
+        target_path = fragments_dir / name
+        if target_path.exists():
+            if verbose:
+                print(f"Fragment {target_path} already exists")
+            continue
+
+        try:
+            with resources.files("codex.data.fragments").joinpath(name).open("r", encoding="utf-8") as src:
+                content = src.read()
+        except FileNotFoundError:
+            if verbose:
+                print(f"Packaged fragment not found: {name}")
+            continue
+
+        target_path.write_text(content)
+        created.append(str(target_path))
+        if verbose:
+            print(f"Created fragment {target_path}")
 
     return created
 

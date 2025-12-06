@@ -20,7 +20,6 @@ class ValidationResult:
 def run_validators(
     ast_only: bool = False,
     stack_only: bool = False,
-    fix: bool = False,
     verbose: bool = False,
 ) -> ValidationResult:
     """
@@ -29,7 +28,6 @@ def run_validators(
     Args:
         ast_only: Run only AST enforcer
         stack_only: Run only stack police
-        fix: Attempt to auto-fix issues
         verbose: Print detailed output
 
     Returns:
