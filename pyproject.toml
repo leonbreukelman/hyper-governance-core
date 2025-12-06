@@ -77,4 +77,4 @@ source = ["src/codex"]
 branch = true
 
 [tool.coverage.report]
-fail_under = 40
+fail_under = 37

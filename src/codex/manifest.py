@@ -331,17 +331,53 @@ def _materialize_fragments(cwd: Path, verbose: bool = False) -> list[str]:
 
 
 def add_fragments(fragments: list[str], verbose: bool = False) -> list[str]:
-    """Add fragments to the manifest."""
+    """Add fragments to the manifest.
+
+    Normalizes fragment references to name@version format and prevents
+    duplicates by checking both versioned and unversioned forms.
+    """
+    from codex.catalog import discover_fragments
+
     manifest = load_manifest(verbose=verbose)
-    existing = set(manifest.get("fragments", []))
+    existing_list = manifest.get("fragments", [])
+
+    # Build set of base names (without version) for duplicate detection
+    existing_base_names: set[str] = set()
+    for frag in existing_list:
+        if "@" in frag:
+            base_name = frag.rsplit("@", 1)[0]
+        else:
+            base_name = frag
+        existing_base_names.add(base_name)
+
+    catalog = discover_fragments(verbose=verbose)
     added = []
 
     for frag in fragments:
-        if frag not in existing:
-            manifest.setdefault("fragments", []).append(frag)
-            added.append(frag)
+        # Extract base name for comparison
+        if "@" in frag:
+            base_name = frag.rsplit("@", 1)[0]
+            normalized = frag
+        else:
+            base_name = frag
+            # Resolve to latest version
+            if base_name in catalog and catalog[base_name]:
+                version = catalog[base_name][0].version
+                normalized = f"{base_name}@{version}"
+            else:
+                normalized = frag
+
+        # Skip if already present (by base name)
+        if base_name in existing_base_names:
             if verbose:
-                print(f"Adding fragment: {frag}")
+                print(f"Fragment already in manifest: {base_name}")
+            continue
+
+        manifest.setdefault("fragments", []).append(normalized)
+        existing_base_names.add(base_name)
+        added.append(base_name)
+        if verbose:
+            print(f"Adding fragment: {normalized}")
 
     if added:
         save_manifest(manifest, verbose=verbose)

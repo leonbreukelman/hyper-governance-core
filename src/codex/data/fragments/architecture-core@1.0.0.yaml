@@ -3,10 +3,38 @@ metadata:
   name: architecture-core
   version: 1.0.0
   domain: architecture
-  description: Core architectural standards for 4-layer clean architecture
+  description: Core architectural standards - layers and design principles
 rules:
+  material:
+    architecture:
+      layers:
+        - name: presentation
+          components:
+            - CLI
+            - API
+          owner: Platform Team
+        - name: application
+          components:
+            - Use Cases
+            - Orchestration
+          owner: Platform Team
+        - name: domain
+          components:
+            - Business Logic
+          owner: Domain Team
+        - name: infrastructure
+          components:
+            - External Services
+            - I/O
+          owner: Platform Team
+      dependency_rules:
+        - Higher layers may depend on lower layers
+        - Lower layers MUST NOT depend on higher layers
+        - Cross-layer dependencies are forbidden
   structural:
     architecture_layer_row: |
+      | Layer | Components | Owner |
+      |-------|------------|-------|
       | Presentation | CLI, API | Platform Team |
       | Application | Use Cases, Orchestration | Platform Team |
       | Domain | Business Logic | Domain Team |
