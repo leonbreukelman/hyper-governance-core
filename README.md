@@ -33,19 +33,38 @@ CODEX Weaver merges governance fragments semantically and renders them into livi
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/leonbreukelman/hyper-governance-core.git
-cd hyper-governance-core
+#### Quick Install (Recommended)
 
-# Install with UV
-uv sync
+```bash
+# Using UV tool (no clone required)
+uv tool install git+https://github.com/leonbreukelman/hyper-governance-core
 
 # Verify installation
+codex --version
+```
+
+#### Alternative: pipx
+
+```bash
+pipx install git+https://github.com/leonbreukelman/hyper-governance-core
+```
+
+#### Development Install
+
+```bash
+# Clone for contributing/development
+git clone https://github.com/leonbreukelman/hyper-governance-core.git
+cd hyper-governance-core
+uv sync
+
+# Run via uv
 uv run codex --version
 ```
 
 ### Basic Usage
+
+> **Note:** If installed via `uv tool install` or `pipx`, use `codex` directly.
+> If using development install, prefix commands with `uv run`.
 
 ```bash
 # List available fragments
